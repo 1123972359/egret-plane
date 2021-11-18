@@ -8,12 +8,15 @@
 		"libs/modules/promise/promise.js"
 	],
 	"game": [
-		"bin-debug/Bullet.js",
-		"bin-debug/Enemy.js",
 		"bin-debug/LoadingUI.js",
 		"bin-debug/Main.js",
 		"bin-debug/Platform.js",
-		"bin-debug/Pool.js",
+		"bin-debug/lib/Bullet.js",
+		"bin-debug/lib/Enemy.js",
+		"bin-debug/lib/Pool.js",
+		"bin-debug/lib/Scene.js",
+		"bin-debug/page/Begin.js",
+		"bin-debug/page/Game.js",
 		"bin-debug/utils/index.js"
 	]
 }

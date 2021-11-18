@@ -1,31 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-present, Egret Technology.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
 var __reflect = (this && this.__reflect) || function (p, c, t) {
     p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
 };
@@ -71,14 +43,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var Main = (function (_super) {
-    __extends(Main, _super);
-    function Main() {
+/**
+ * 开始场景
+ */
+var Begin = (function (_super) {
+    __extends(Begin, _super);
+    function Begin() {
         var _this = _super.call(this) || this;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
-    Main.prototype.onAddToStage = function (event) {
+    Begin.prototype.onAddToStage = function (event) {
         egret.lifecycle.addLifecycleListener(function (context) {
             // custom lifecycle plugin
             context.onUpdate = function () {
@@ -94,47 +69,42 @@ var Main = (function (_super) {
             console.log(e);
         });
     };
-    Main.prototype.runGame = function () {
+    Begin.prototype.runGame = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var begin;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadResource()];
-                    case 1:
-                        _a.sent();
-                        begin = new Begin();
-                        this.addChild(begin);
-                        return [2 /*return*/];
-                }
+                this.ceateBeginRect();
+                this.createBeginText();
+                this.scene = Scene.getInstance();
+                return [2 /*return*/];
             });
         });
     };
-    Main.prototype.loadResource = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var loadingView, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        loadingView = new LoadingUI();
-                        this.stage.addChild(loadingView);
-                        return [4 /*yield*/, RES.loadConfig("resource/default.res.json", "resource/")];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, RES.loadGroup("preload", 0, loadingView)];
-                    case 2:
-                        _a.sent();
-                        this.stage.removeChild(loadingView);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_1 = _a.sent();
-                        console.error(e_1);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
+    Begin.prototype.ceateBeginRect = function () {
+        var shp = new egret.Shape();
+        shp.graphics.beginFill(0x778899, 1);
+        shp.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
+        shp.graphics.endFill();
+        this.addChild(shp);
     };
-    return Main;
+    /**
+     * 创建开始文字
+     * @method createBeginText
+     */
+    Begin.prototype.createBeginText = function () {
+        var _this = this;
+        var label = new egret.TextField();
+        label.text = "hello world!";
+        label.x = this.stage.stageWidth / 2 - label.width / 2;
+        label.y = this.stage.stageHeight / 2;
+        label.textColor = 0xFFB6C1;
+        this.addChild(label);
+        label.touchEnabled = true;
+        label.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            var game = new Game();
+            console.log("this.scene", _this.scene);
+            _this.scene.push(game, _this);
+        }, this);
+    };
+    return Begin;
 }(egret.DisplayObjectContainer));
-__reflect(Main.prototype, "Main");
+__reflect(Begin.prototype, "Begin");

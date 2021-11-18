@@ -14,6 +14,7 @@
 ```
     let label:egret.TextField = new egret.TextField(); 
     label.text = "hello world!"; 
+    label.textColor = 0xFFB6C1; // {number} 十六进制 0x开头
 ```
 图片
 ```
@@ -72,3 +73,13 @@ egret.localStorage.clear();
     3、池中物先创建再使用，最大值即创建时的数量，当一个物取出使用完被回收，回到池中等到下次取出，就不需要重新创建
 
 ```
+
+### 切换场景
+简单实现
+```
+    // this.addChild(场景实例)
+
+    const begin = new Begin();
+    this.addChild(begin);
+```
+可以实现一个全局的类，记录场景的栈 `Scene.ts`
