@@ -15,8 +15,8 @@
 		"bin-debug/lib/Enemy.js",
 		"bin-debug/lib/Pool.js",
 		"bin-debug/lib/Scene.js",
-		"bin-debug/page/Begin.js",
-		"bin-debug/page/Game.js",
+		"bin-debug/scene/Begin.js",
+		"bin-debug/scene/Game.js",
 		"bin-debug/utils/index.js"
 	]
 }

@@ -7,7 +7,5 @@
 		"js/assetsmanager.js",
 		"js/promise.js"
 	],
-	"game": [
-		"js/main.js"
-	]
+	"game": []
 }

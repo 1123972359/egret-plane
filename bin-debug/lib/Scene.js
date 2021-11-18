@@ -29,6 +29,15 @@ var Scene = (function () {
         this.sceneStack.push(cls);
         that.addChild(cls);
     };
+    /**
+     * 关闭当前场景
+     * @method pop
+     * @param {any} cls 场景类实例
+     * @param {any} that this
+     */
+    Scene.prototype.pop = function (that) {
+        that.removeChild(this.sceneStack.pop());
+    };
     return Scene;
 }());
 __reflect(Scene.prototype, "Scene");

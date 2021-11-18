@@ -8,7 +8,6 @@ var __reflect = (this && this.__reflect) || function (p, c, t) {
 var Pool = (function () {
     function Pool() {
         this.poolMap = {}; // 池
-        this.length = 0;
     }
     /**
      * 获取实例
@@ -34,16 +33,15 @@ var Pool = (function () {
             active: false,
             body: create()
         }); });
-        this.length = num;
         return this.poolMap[key];
     };
     /**
      * 获取一个不活动的对象，并把状态设置为活动
-     * @method getActivceFalseOne
+     * @method getActiveFalseOne
      * @param {string} key 键名
      * @return {any}
      */
-    Pool.prototype.getActivceFalseOne = function (key) {
+    Pool.prototype.getActiveFalseOne = function (key) {
         var arr = this.poolMap[key];
         var res = arr.filter(function (item) { return !item.active; });
         if (res.length > 0) {

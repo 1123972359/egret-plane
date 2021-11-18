@@ -6,9 +6,7 @@ class Pool {
 
     private static instance: Pool = new Pool(); // 单例
 
-    private poolMap: Object = {}; // 池
-
-    public length: number = 0;
+    public poolMap: Object = {}; // 池
 
     private constructor() {
     }
@@ -38,17 +36,16 @@ class Pool {
             active: false,
             body: create()
         }));
-        this.length = num;
         return this.poolMap[key];
     }
 
     /**
      * 获取一个不活动的对象，并把状态设置为活动
-     * @method getActivceFalseOne
+     * @method getActiveFalseOne
      * @param {string} key 键名
      * @return {any}
      */
-    public getActivceFalseOne(key: string): any {
+    public getActiveFalseOne(key: string): any {
         var arr: any[] = this.poolMap[key];
         var res = arr.filter(item => !item.active);
         if (res.length > 0) {

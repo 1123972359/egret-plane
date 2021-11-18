@@ -60,7 +60,10 @@ let score:string = egret.localStorage.getItem(key);
 egret.localStorage.removeItem(key);
 egret.localStorage.clear();
 ```
-
+frame事件
+```
+this.addEventListener(egret.Event.ENTER_FRAME, () => {}, this)
+```
 
 ### 对象池
     - 为了可以让对象复用，防止大量重复创建对象，导致资源浪费，使用对象池来管理。
@@ -83,3 +86,5 @@ egret.localStorage.clear();
     this.addChild(begin);
 ```
 可以实现一个全局的类，记录场景的栈 `Scene.ts`
+
+### Frame事件不可滥用，不可替代定时器事件，有需要才用

@@ -9,10 +9,13 @@ var Enemy = (function () {
     }
     /**
      * 创建敌人
-     * @return {egret.Bitmap}
+     * @param {number} lv default=1
+     * @return {EnemyBitmap}
      */
-    Enemy.prototype.create = function () {
+    Enemy.prototype.create = function (lv) {
+        if (lv === void 0) { lv = 1; }
         var enemy = createBitmapByName("balloon_png");
+        enemy.level = lv;
         return enemy;
     };
     return Enemy;

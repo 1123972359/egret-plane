@@ -8,7 +8,9 @@ declare interface Platform {
 
     getUserInfo(): Promise<any>;
 
-    login(): Promise<any>
+    login(): Promise<any>;
+
+    gameover: Boolean
 
 }
 
@@ -19,6 +21,8 @@ class DebugPlatform implements Platform {
     async login() {
 
     }
+
+    gameover = false
 }
 
 

@@ -84,7 +84,7 @@ var isCollision = function (a, b) {
     return true;
 };
 /**
- * 清理舞台对应池中物
+ * 清理舞台对应池中物，及对应的frame事件，及对应的子弹定时器
  * @method clearPoolItem
  * @param {string} group 组名
  * @param {any} one 池中物
@@ -93,9 +93,19 @@ var isCollision = function (a, b) {
  */
 var clearPoolItem = function (group, one, fn, that) {
     var pool = Pool.getInstance();
+    // 池回收
     pool.recoveryOne(one);
+    // 场景移除
     that.removeChild(one.body);
-    that.removeEventListener(egret.Event.ENTER_FRAME, fn, that);
+    // 移除frame事件
+    if (fn) {
+        that.removeEventListener(egret.Event.ENTER_FRAME, fn, that);
+    }
+    // 清除该敌人的子弹定时器
+    if (one.body.fireTimer && one.body.fireTimerFn) {
+        one.body.fireTimer.removeEventListener(egret.TimerEvent.TIMER, one.body.fireTimerFn, _this);
+    }
+    // poolGroup删除
     for (var i = 0; i < that[group].length; i++) {
         if (that[group][i].id === one.id) {
             that[group].splice(i, 1);

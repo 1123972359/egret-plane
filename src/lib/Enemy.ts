@@ -9,10 +9,12 @@ class Enemy {
 
     /**
      * 创建敌人
-     * @return {egret.Bitmap} 
+     * @param {number} lv default=1
+     * @return {EnemyBitmap} 
      */
-    public create(): egret.Bitmap {
-        let enemy = createBitmapByName("balloon_png");
+    public create(lv: number = 1): egret.Bitmap {
+        let enemy: any = createBitmapByName("balloon_png");
+        enemy.level = lv;
         return enemy;
     }
 }

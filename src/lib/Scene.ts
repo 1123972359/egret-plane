@@ -33,4 +33,14 @@ class Scene {
         this.sceneStack.push(cls);
         that.addChild(cls);
     }
+
+    /**
+     * 关闭当前场景
+     * @method pop
+     * @param {any} cls 场景类实例
+     * @param {any} that this
+     */
+    public pop(that: any) {
+        that.removeChild(this.sceneStack.pop());
+    }
 }
