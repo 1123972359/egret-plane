@@ -187,9 +187,9 @@ class Game extends egret.DisplayObjectContainer {
     private createBulltePool() {
         const bu = new Bullet();
         // 飞机普通子弹池
-        this.pool.create(() => bu.create('normal'), 'bullet', 20);
+        this.pool.create(() => bu.create('normal'), this.planeBulletPoolName, 20);
         // 敌人普通子弹池
-        this.pool.create(() => bu.create('emeny-1'), 'emeny-bullet', 100);
+        this.pool.create(() => bu.create('enemy-1'), this.enemyFirePoolName, 100);
     }
 
     /**

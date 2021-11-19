@@ -2,7 +2,8 @@
  * 子弹
  */
 type bulletType = {
-    normal: Function
+    normal: Function,
+    'enemy-1': Function
 }
 
 class Bullet {
@@ -19,7 +20,7 @@ class Bullet {
             return shape;
         },
         // 敌机normal子弹
-        [`emeny-1`]: () => {
+        'enemy-1': () => {
             var shape: egret.Shape = new egret.Shape();
             const long: number = 20;
             const dis: number = 20;
