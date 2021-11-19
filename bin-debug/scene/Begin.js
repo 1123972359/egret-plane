@@ -50,13 +50,18 @@ var Begin = (function (_super) {
     __extends(Begin, _super);
     function Begin() {
         var _this = _super.call(this) || this;
+        _this.scene = Scene.getInstance();
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
     Begin.prototype.onAddToStage = function (event) {
+        var _this = this;
         egret.lifecycle.addLifecycleListener(function (context) {
             // custom lifecycle plugin
             context.onUpdate = function () {
+                if (platform.gameover) {
+                    _this.label.text = '重新开始';
+                }
             };
         });
         egret.lifecycle.onPause = function () {
@@ -74,7 +79,6 @@ var Begin = (function (_super) {
             return __generator(this, function (_a) {
                 this.ceateBeginRect();
                 this.createBeginText();
-                this.scene = Scene.getInstance();
                 return [2 /*return*/];
             });
         });
@@ -86,14 +90,10 @@ var Begin = (function (_super) {
         shp.graphics.endFill();
         this.addChild(shp);
     };
-    /**
-     * 创建开始文字
-     * @method createBeginText
-     */
     Begin.prototype.createBeginText = function () {
         var _this = this;
         var label = new egret.TextField();
-        label.text = "hello world!";
+        label.text = '开始游戏';
         label.x = this.stage.stageWidth / 2 - label.width / 2;
         label.y = this.stage.stageHeight / 2;
         label.textColor = 0xFFB6C1;
@@ -101,9 +101,10 @@ var Begin = (function (_super) {
         label.touchEnabled = true;
         label.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
             var game = new Game();
-            console.log("this.scene", _this.scene);
             _this.scene.push(game, _this);
+            platform.gameover = false;
         }, this);
+        this.label = label;
     };
     return Begin;
 }(egret.DisplayObjectContainer));

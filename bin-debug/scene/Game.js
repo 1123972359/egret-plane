@@ -337,8 +337,8 @@ var Game = (function (_super) {
         this.stage.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.mouseMove, this);
         // 创建敌人清除
         this.createEnemyTimer.removeEventListener(egret.TimerEvent.TIMER, this.createEnemyTimerFn, this);
-        this.scene.pop(this);
-        // // 此处切换场景有问题
+        // 切换场景
+        this.scene.pop();
     };
     return Game;
 }(egret.DisplayObjectContainer));

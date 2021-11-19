@@ -39,21 +39,9 @@ class Scene {
      * 关闭当前场景
      * @method pop
      * @param {any} cls 场景类实例
-     * @param {any} that this
      */
-    public pop(that: any) {
+    public pop() {
         const pop = this.sceneStack.pop()
-        // that.removeChild(pop);
-        const parent = this.findParent(this.sceneStack[this.sceneStack.length - 1], that);
-        console.log(`parent`, parent);
-        parent.addChild(this.sceneStack[this.sceneStack.length - 1]);
-    }
-
-    private findParent(cls, that) {
-        console.log(`cls === that.parent`, cls === that.parent, cls, that.parent);
-        if (cls === that.parent) {
-            return this.findParent(cls.parent, that);
-        }
-        return cls;
+        pop.parent.removeChild(pop);
     }
 }

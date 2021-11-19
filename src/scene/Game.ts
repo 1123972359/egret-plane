@@ -343,10 +343,8 @@ class Game extends egret.DisplayObjectContainer {
         // 创建敌人清除
         this.createEnemyTimer.removeEventListener(egret.TimerEvent.TIMER, this.createEnemyTimerFn, this);
 
-        //
-        // 此处切换场景有问题
-        //
-        this.scene.pop(this);
+        // 切换场景
+        this.scene.pop();
 
 
     }

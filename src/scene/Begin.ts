@@ -14,7 +14,9 @@ class Begin extends egret.DisplayObjectContainer {
             // custom lifecycle plugin
 
             context.onUpdate = () => {
-
+                if (platform.gameover) {
+                    this.label.text = '重新开始';
+                }
             }
         })
 
@@ -31,13 +33,11 @@ class Begin extends egret.DisplayObjectContainer {
         })
     }
 
-    private scene: Scene;
+    private scene: Scene = Scene.getInstance();
 
     private async runGame() {
         this.ceateBeginRect();
         this.createBeginText();
-
-        this.scene = Scene.getInstance();
     }
 
     private ceateBeginRect() {
@@ -52,9 +52,10 @@ class Begin extends egret.DisplayObjectContainer {
      * 创建开始文字
      * @method createBeginText
      */
+    private label: egret.TextField;
     private createBeginText() {
         let label: egret.TextField = new egret.TextField();
-        label.text = "hello world!";
+        label.text = '开始游戏';
         label.x = this.stage.stageWidth / 2 - label.width / 2;
         label.y = this.stage.stageHeight / 2;
         label.textColor = 0xFFB6C1;
@@ -62,9 +63,10 @@ class Begin extends egret.DisplayObjectContainer {
         label.touchEnabled = true;
         label.addEventListener(egret.TouchEvent.TOUCH_TAP, () => {
             const game = new Game();
-            console.log(`this.scene`, this.scene);
             this.scene.push(game, this);
+            platform.gameover = false;
         }, this)
+        this.label = label;
     }
 
 }
