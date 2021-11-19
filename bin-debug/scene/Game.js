@@ -55,6 +55,25 @@ var Game = (function (_super) {
         _this.enemyGroup = []; // 敌人组
         _this.planeBulletGroup = []; // 飞机子弹组
         _this.enemyBulletGroup = []; // 敌人子弹组
+        _this.pool = Pool.getInstance(); // 对象池    
+        _this.skySpeed = 10;
+        _this.enemyLevel = 1;
+        /**
+         * 自己飞机开火
+         */
+        _this.planeBulletPoolName = 'bullet';
+        _this.planeBulletDis = 20;
+        /**
+         * 敌人开火
+         * @method enemyFire
+         * @param {any} enemy 敌人的pool
+         */
+        _this.enemyFireDis = 20;
+        _this.enemyFirePoolName = 'emeny-bullet';
+        /**
+         * 游戏结束
+         */
+        _this.scene = Scene.getInstance();
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
@@ -92,32 +111,33 @@ var Game = (function (_super) {
         this.createEnemy();
         this.createBulltePool();
     };
-    // 创建背景，背景滚动
     Game.prototype.createBg = function () {
         // 两张相同背景
-        var sky = createBitmapByName("bgg_png");
-        this.addChild(sky);
+        this.sky = createBitmapByName("bgg_png");
+        this.addChild(this.sky);
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
-        sky.width = stageW;
-        sky.height = stageH;
-        var sky2 = createBitmapByName("bgg_png");
-        this.addChild(sky2);
-        sky2.width = stageW;
-        sky2.height = stageH;
-        sky2.y = -stageH;
-        var speed = 10;
-        // 设置背景滚动
-        this.addEventListener(egret.Event.ENTER_FRAME, function () {
-            sky.y += speed;
-            sky2.y += speed;
-            if (sky.y >= stageH) {
-                sky.y = -(stageH - sky2.y);
-            }
-            if (sky2.y >= stageH) {
-                sky2.y = -(stageH - sky.y);
-            }
-        }, this);
+        this.sky.width = stageW;
+        this.sky.height = stageH;
+        this.sky2 = createBitmapByName("bgg_png");
+        this.addChild(this.sky2);
+        this.sky2.width = stageW;
+        this.sky2.height = stageH;
+        this.sky2.y = -stageH;
+        this.addEventListener(egret.Event.ENTER_FRAME, this.bgFrame, this);
+    };
+    // 设置背景滚动
+    Game.prototype.bgFrame = function () {
+        var stageW = this.stage.stageWidth;
+        var stageH = this.stage.stageHeight;
+        this.sky.y += this.skySpeed;
+        this.sky2.y += this.skySpeed;
+        if (this.sky.y >= stageH) {
+            this.sky.y = -(stageH - this.sky2.y);
+        }
+        if (this.sky2.y >= stageH) {
+            this.sky2.y = -(stageH - this.sky.y);
+        }
     };
     // 飞机触摸移动
     Game.prototype.createPlane = function () {
@@ -132,46 +152,46 @@ var Game = (function (_super) {
         this.plane.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.mouseDown, this);
         this.plane.addEventListener(egret.TouchEvent.TOUCH_END, this.mouseUp, this);
     };
-    // 创建敌人
     Game.prototype.createEnemy = function () {
+        var _this = this;
+        var en = new Enemy();
+        var poolName = "enemy" + this.enemyLevel;
+        this.pool.create(function () { return en.create(_this.enemyLevel); }, poolName, 2);
+        this.createEnemyTimer = new egret.Timer(500, Infinity);
+        this.createEnemyTimer.addEventListener(egret.TimerEvent.TIMER, this.createEnemyTimerFn, this);
+        this.createEnemyTimer.start();
+    };
+    Game.prototype.createEnemyTimerFn = function () {
+        var poolName = "enemy" + this.enemyLevel;
+        // 如果敌人组的数量少于池的创建数量，那就从池取出
+        if (this.enemyGroup.length < this.pool.poolMap[poolName].length) {
+            var res = this.createEnemyGetOne();
+            res && this.enemyGroup.push(res);
+        }
+    };
+    // 取出不活动的敌人
+    Game.prototype.createEnemyGetOne = function () {
         var _this = this;
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
-        var en = new Enemy();
-        var pool = Pool.getInstance();
-        var level = 1;
-        var poolName = "enemy" + level;
-        pool.create(function () { return en.create(level); }, poolName, 2);
-        // 取出不活动的敌人
-        var getOne = function () {
-            var one = pool.getActiveFalseOne(poolName);
-            if (one) {
-                one.body.x = Math.random() * 1 + Math.random() * stageW * 0.9;
-                one.body.y = -50;
-                _this.addChild(one.body);
-                one.frame = function () {
-                    one.body.y += 10;
-                    if (one.body.y > stageH) {
-                        // 如果超出屏幕，就回收到池子，并从舞台去除，将 enemyGroup 中的去除
-                        clearPoolItem('enemyGroup', one, one.frame, _this);
-                    }
-                };
-                _this.addEventListener(egret.Event.ENTER_FRAME, one.frame, _this);
-                // 敌人开火
-                _this.enemyFire(one);
-            }
-            return one;
-        };
-        var timerFn = function () {
-            // 如果敌人组的数量少于池的创建数量，那就从池取出
-            if (_this.enemyGroup.length < pool.poolMap[poolName].length) {
-                var res = getOne();
-                res && _this.enemyGroup.push(res);
-            }
-        };
-        var timer = new egret.Timer(500, Infinity);
-        timer.addEventListener(egret.TimerEvent.TIMER, timerFn, this);
-        timer.start();
+        var poolName = "enemy" + this.enemyLevel;
+        var one = this.pool.getActiveFalseOne(poolName);
+        if (one) {
+            one.body.x = Math.random() * 1 + Math.random() * stageW * 0.9;
+            one.body.y = -50;
+            this.addChild(one.body);
+            one.frame = function () {
+                one.body.y += 10;
+                if (one.body.y > stageH) {
+                    // 如果超出屏幕，就回收到池子，并从舞台去除，将 enemyGroup 中的去除
+                    clearPoolItem('enemyGroup', one, one.frame, _this);
+                }
+            };
+            this.addEventListener(egret.Event.ENTER_FRAME, one.frame, this);
+            // 敌人开火
+            this.enemyFire(one);
+        }
+        return one;
     };
     Game.prototype.mouseDown = function (evt) {
         // console.log("Mouse Down.");
@@ -197,102 +217,84 @@ var Game = (function (_super) {
     // 创建子弹池
     Game.prototype.createBulltePool = function () {
         var bu = new Bullet();
-        var pool = Pool.getInstance();
         // 飞机普通子弹池
-        pool.create(function () { return bu.create('normal'); }, 'bullet', 20);
+        this.pool.create(function () { return bu.create('normal'); }, 'bullet', 20);
         // 敌人普通子弹池
-        pool.create(function () { return bu.create('emeny-1'); }, 'emeny-bullet', 100);
+        this.pool.create(function () { return bu.create('emeny-1'); }, 'emeny-bullet', 100);
     };
-    // 自己飞机开火
     Game.prototype.planeFire = function () {
-        var _this = this;
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
-        var pool = Pool.getInstance();
-        var dis = 20;
-        var poolName = 'bullet';
-        // 取出不活动的子弹
-        var getOne = function () {
-            var pool = Pool.getInstance();
-            var one = pool.getActiveFalseOne(poolName);
-            if (one) {
-                one.body.x = _this.plane.x + _this.plane.width / 2;
-                one.body.y = _this.plane.y;
-                _this.addChild(one.body);
-                one.frame = function () {
-                    one.body.y -= dis;
-                    // 如果飞机子弹与敌组碰撞，则将子弹和敌人去除
-                    var isColl = false;
-                    if (_this.enemyGroup.length > 0) {
-                        for (var i in _this.enemyGroup) {
-                            if (isCollision(one.body, _this.enemyGroup[i].body)) {
-                                isColl = true;
-                                clearPoolItem('planeBulletGroup', one, one.frame, _this);
-                                clearPoolItem('enemyGroup', _this.enemyGroup[i], _this.enemyGroup[i].frame, _this);
-                                break;
-                            }
-                        }
-                    }
-                    if (!isColl) {
-                        // 如果超出屏幕，就回收到池子，并从舞台去除，将 planeBulletGroup 中的去除
-                        if (one.body.y < 0) {
-                            clearPoolItem('planeBulletGroup', one, one.frame, _this);
-                        }
-                    }
-                };
-                _this.addEventListener(egret.Event.ENTER_FRAME, one.frame, _this);
-            }
-            return one;
-        };
-        var timerFn = function () {
-            if (!_this._touchStatus) {
-                timer.removeEventListener(egret.TimerEvent.TIMER, timerFn, _this);
-                return;
-            }
-            // 如果子弹组的数量少于池的创建数量，那就从池取出
-            if (_this.planeBulletGroup.length < pool.poolMap[poolName].length) {
-                var res = getOne();
-                res && _this.planeBulletGroup.push(res);
-            }
-        };
-        var timer = new egret.Timer(500, Infinity);
-        timer.addEventListener(egret.TimerEvent.TIMER, timerFn, this);
-        timer.start();
-        this.plane.fireTimer = timer;
-        this.plane.fireTimerFn = timerFn;
+        this.planeFireTimer = new egret.Timer(500, Infinity);
+        this.planeFireTimer.addEventListener(egret.TimerEvent.TIMER, this.planeFireTimerFn, this);
+        this.planeFireTimer.start();
+        this.plane.fireTimer = this.planeFireTimer;
+        this.plane.fireTimerFn = this.planeFireTimerFn;
     };
-    /**
-     * 敌人开火
-     * @method enemyFire
-     * @param {any} enemy 敌人的pool
-     */
+    Game.prototype.planeFireTimerFn = function () {
+        if (!this._touchStatus) {
+            this.planeFireTimer.removeEventListener(egret.TimerEvent.TIMER, this.planeFireTimerFn, this);
+            return;
+        }
+        // 如果子弹组的数量少于池的创建数量，那就从池取出
+        if (this.planeBulletGroup.length < this.pool.poolMap[this.planeBulletPoolName].length) {
+            var res = this.planeFireGetOne();
+            res && this.planeBulletGroup.push(res);
+        }
+    };
+    // 取出不活动的子弹
+    Game.prototype.planeFireGetOne = function () {
+        var _this = this;
+        var one = this.pool.getActiveFalseOne(this.planeBulletPoolName);
+        if (one) {
+            one.body.x = this.plane.x + this.plane.width / 2;
+            one.body.y = this.plane.y;
+            this.addChild(one.body);
+            one.frame = function () {
+                one.body.y -= _this.planeBulletDis;
+                // 如果飞机子弹与敌组碰撞，则将子弹和敌人去除
+                var isColl = false;
+                if (_this.enemyGroup.length > 0) {
+                    for (var i in _this.enemyGroup) {
+                        if (isCollision(one.body, _this.enemyGroup[i].body)) {
+                            isColl = true;
+                            clearPoolItem('planeBulletGroup', one, one.frame, _this);
+                            clearPoolItem('enemyGroup', _this.enemyGroup[i], _this.enemyGroup[i].frame, _this);
+                            break;
+                        }
+                    }
+                }
+                if (!isColl) {
+                    // 如果超出屏幕，就回收到池子，并从舞台去除，将 planeBulletGroup 中的去除
+                    if (one.body.y < 0) {
+                        clearPoolItem('planeBulletGroup', one, one.frame, _this);
+                    }
+                }
+            };
+            this.addEventListener(egret.Event.ENTER_FRAME, one.frame, this);
+        }
+        return one;
+    };
     Game.prototype.enemyFire = function (enemy) {
         var _this = this;
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
-        var pool = Pool.getInstance();
-        var dis = 20;
-        var poolName = 'emeny-bullet';
-        var clearTimer = function () {
-            // 如果enemy已经被回收了，那么清除它的子弹定时器
-            enemy.body.fireTimer.removeEventListener(egret.TimerEvent.TIMER, enemy.body.fireTimerFn, _this);
-        };
         // 取出不活动的子弹
         var getOne = function () {
             var pool = Pool.getInstance();
-            var one = pool.getActiveFalseOne(poolName);
+            var one = pool.getActiveFalseOne(_this.enemyFirePoolName);
             if (one) {
                 one.body.x = enemy.body.x + enemy.body.width / 2;
                 one.body.y = enemy.body.y + enemy.body.height;
                 _this.addChild(one.body);
                 one.frame = function () {
-                    one.body.y += dis;
+                    one.body.y += _this.enemyFireDis;
                     // 如果敌机子弹与飞机碰撞，则失败，停止游戏
                     var isColl = false;
                     if (isCollision(one.body, _this.plane)) {
                         isColl = true;
                         // 设置flag
-                        _this.gameOver();
+                        !platform.gameover && _this.gameOver();
                         clearPoolItem('enemyBulletGroup', one, one.frame, _this);
                     }
                     if (!isColl) {
@@ -308,11 +310,12 @@ var Game = (function (_super) {
         };
         var timerFn = function () {
             if (!enemy.active) {
-                clearTimer();
+                // 如果enemy已经被回收了，那么清除它的子弹定时器
+                enemy.body.fireTimer.removeEventListener(egret.TimerEvent.TIMER, enemy.body.fireTimerFn, _this);
                 return;
             }
             // 如果子弹组的数量少于池的创建数量，那就从池取出
-            if (_this.enemyBulletGroup.length < pool.poolMap[poolName].length) {
+            if (_this.enemyBulletGroup.length < _this.pool.poolMap[_this.enemyFirePoolName].length) {
                 var res = getOne();
                 res && _this.enemyBulletGroup.push(res);
             }
@@ -325,9 +328,17 @@ var Game = (function (_super) {
     };
     Game.prototype.gameOver = function () {
         platform.gameover = true;
-        this.removeChild(this.plane);
-        this.scene = Scene.getInstance();
+        // 背景滚动清除
+        this.removeEventListener(egret.Event.ENTER_FRAME, this.bgFrame, this);
+        // 触摸清除
+        this.plane.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.mouseDown, this);
+        this.plane.removeEventListener(egret.TouchEvent.TOUCH_END, this.mouseUp, this);
+        this._touchStatus = false;
+        this.stage.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.mouseMove, this);
+        // 创建敌人清除
+        this.createEnemyTimer.removeEventListener(egret.TimerEvent.TIMER, this.createEnemyTimerFn, this);
         this.scene.pop(this);
+        // // 此处切换场景有问题
     };
     return Game;
 }(egret.DisplayObjectContainer));

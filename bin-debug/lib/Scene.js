@@ -27,6 +27,7 @@ var Scene = (function () {
      */
     Scene.prototype.push = function (cls, that) {
         this.sceneStack.push(cls);
+        console.log("that", that);
         that.addChild(cls);
     };
     /**
@@ -36,7 +37,18 @@ var Scene = (function () {
      * @param {any} that this
      */
     Scene.prototype.pop = function (that) {
-        that.removeChild(this.sceneStack.pop());
+        var pop = this.sceneStack.pop();
+        // that.removeChild(pop);
+        var parent = this.findParent(this.sceneStack[this.sceneStack.length - 1], that);
+        console.log("parent", parent);
+        parent.addChild(this.sceneStack[this.sceneStack.length - 1]);
+    };
+    Scene.prototype.findParent = function (cls, that) {
+        console.log("cls === that.parent", cls === that.parent, cls, that.parent);
+        if (cls === that.parent) {
+            return this.findParent(cls.parent, that);
+        }
+        return cls;
     };
     return Scene;
 }());

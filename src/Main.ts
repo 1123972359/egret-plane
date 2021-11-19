@@ -57,10 +57,11 @@ class Main extends egret.DisplayObjectContainer {
         })
     }
 
+    private scene: Scene = Scene.getInstance();
     private async runGame() {
         await this.loadResource();
         const begin = new Begin();
-        this.addChild(begin);
+        this.scene.push(begin, this);
     }
 
     private async loadResource() {

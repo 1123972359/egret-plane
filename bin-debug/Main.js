@@ -75,6 +75,7 @@ var Main = (function (_super) {
     __extends(Main, _super);
     function Main() {
         var _this = _super.call(this) || this;
+        _this.scene = Scene.getInstance();
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
@@ -103,7 +104,7 @@ var Main = (function (_super) {
                     case 1:
                         _a.sent();
                         begin = new Begin();
-                        this.addChild(begin);
+                        this.scene.push(begin, this);
                         return [2 /*return*/];
                 }
             });
